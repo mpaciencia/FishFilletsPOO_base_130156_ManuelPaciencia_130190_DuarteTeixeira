@@ -10,6 +10,5 @@ public class Main {
 		gui.setStatusMessage("Good luck!");
 		gui.registerObserver(engine);
 		gui.go();
-	}
-	
+	}	
 }

@@ -9,6 +9,7 @@ import java.util.Scanner;
 import objects.Water;
 import objects.BigFish;
 import objects.GameObject;
+import objects.HoledWall;
 import objects.SmallFish;
 import objects.SteelHorizontal;
 import objects.Wall;
@@ -105,7 +106,10 @@ public class Room {
 	                        break;	                    	                    
 	                    case 'H': 
 	                        obj = new SteelHorizontal(r);
-	                        break;	                    
+	                        break;
+						case 'X':
+							obj = new HoledWall(r);
+							break;	                    
 	                    case 'C': 	                        
 	                        break;   
 	                } 
