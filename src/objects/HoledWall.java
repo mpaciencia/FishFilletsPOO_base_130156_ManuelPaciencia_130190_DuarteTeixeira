@@ -1,8 +1,9 @@
 package objects;
 
+import interfaces.Intransposable;
 import pt.iscte.poo.game.Room;
 
-public class HoledWall extends GameObject implements Untransposable{
+public class HoledWall extends GameObject implements Intransposable{
 
 	public HoledWall(Room room) {
 		super(room);

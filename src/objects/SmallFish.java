@@ -1,13 +1,14 @@
 package objects;
 
+import interfaces.Intransposable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public class SmallFish extends GameCharacter implements Untransposable{
+public class SmallFish extends GameCharacter implements Intransposable{
 
 	private static SmallFish sf = new SmallFish(null);
-	private String currentImage = "smallFishLeft"; // adicionado
+	private String currentImage = "smallFishLeft.png"; // adicionado
 	
 	private SmallFish(Room room) {
 		super(room);
@@ -35,9 +36,9 @@ public class SmallFish extends GameCharacter implements Untransposable{
 		// Só muda sprite se efetivamente se moveu; ADICIONADO
 		if (!after.equals(before)) {
 			if (dir == Direction.LEFT) {
-				currentImage = "smallFishLeft";
+				currentImage = "smallFishLeft.png";
 			} else if (dir == Direction.RIGHT) {
-				currentImage = "smallFishRight";
+				currentImage = "smallFishRight.png";
 			}
 		}
 	}

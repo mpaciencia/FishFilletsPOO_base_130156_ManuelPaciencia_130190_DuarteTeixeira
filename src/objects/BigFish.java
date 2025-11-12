@@ -1,10 +1,11 @@
 package objects;
 
+import interfaces.Intransposable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public class BigFish extends GameCharacter implements Untransposable{
+public class BigFish extends GameCharacter implements Intransposable{
 
 	private static BigFish bf = new BigFish(null);
 	private String currentImage = "bigFishLeft"; // imagem inicial
@@ -32,7 +33,7 @@ public class BigFish extends GameCharacter implements Untransposable{
 		Point2D before = getPosition();
 		super.move(dir);
 		Point2D after = getPosition();
-		// Só muda sprite se efetivamente se moveu; ADICIONADO
+		// Só muda sprite se efetivamente se moveu;
 		if (!after.equals(before)) {
 			if (dir == Direction.LEFT) {
 				currentImage = "bigFishLeft";

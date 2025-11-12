@@ -1,8 +1,9 @@
 package objects;
 
+import interfaces.Intransposable;
 import pt.iscte.poo.game.Room;
 
-public class SteelHorizontal extends GameObject implements Untransposable{
+public class SteelHorizontal extends GameObject implements Intransposable{
 
 	public SteelHorizontal(Room room) {
 		super(room);
