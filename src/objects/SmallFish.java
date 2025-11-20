@@ -1,11 +1,12 @@
 package objects;
 
-import interfaces.Untransposable;
+
+import interfaces.Small;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public class SmallFish extends GameCharacter implements Untransposable{
+public class SmallFish extends GameCharacter implements Small{
 
 	private static SmallFish sf = new SmallFish(null);
 	private String currentImage = "smallFishLeft"; // adicionado

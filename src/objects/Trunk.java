@@ -1,9 +1,10 @@
 package objects;
 
+import interfaces.Breakable;
 import interfaces.Untransposable;
 import pt.iscte.poo.game.Room;
 
-public class Trunk extends GameObject implements Untransposable{
+public class Trunk extends GameObject implements Untransposable, Breakable{
     public Trunk(Room room){
         super(room);
     }

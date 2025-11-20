@@ -6,13 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import objects.Water;
-import objects.BigFish;
-import objects.GameObject;
-import objects.HoledWall;
-import objects.SmallFish;
-import objects.SteelHorizontal;
-import objects.Wall;
+import objects.*;
 import pt.iscte.poo.utils.Point2D;
 
 public class Room {
@@ -122,8 +116,18 @@ public class Room {
 							obj = new HoledWall(r);
 							break;
 						case 'C':
-							// Carácter 'C' reservado / sem objecto a criar aqui
+							obj = new Cup(r);
 							break;
+						case 'R':
+							obj = new Stone(r);
+						case 'A':
+							obj = new Anchor(r);
+						case 'b':
+							obj = new Bomb(r);
+						case 'T':
+							obj = new Trap(r);
+						case 'Y':
+							obj = new Trunk(r);
 						default:
 							// Qualquer outro carácter é ignorado (mantém-se Water existente)
 							break;

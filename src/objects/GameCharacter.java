@@ -8,7 +8,7 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
-public abstract class GameCharacter extends GameObject {
+public abstract class GameCharacter extends GameObject implements Untransposable{
 	
 	public GameCharacter(Room room) {
 		super(room);

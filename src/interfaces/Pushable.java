@@ -1,5 +1,7 @@
 package interfaces;
 
-public interface Pushable {
+import objects.GameObject;
 
+public interface Pushable {
+    boolean isPushableBy(GameObject gameObject);
 }

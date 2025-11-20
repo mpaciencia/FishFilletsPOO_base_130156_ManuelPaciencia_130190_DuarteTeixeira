@@ -1,11 +1,12 @@
 package objects;
 
-import interfaces.Untransposable;
+
+import interfaces.Big;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public class BigFish extends GameCharacter implements Untransposable{
+public class BigFish extends GameCharacter implements Big{
 
 	private static BigFish bf = new BigFish(null);
 	private String currentImage = "bigFishLeft"; // imagem inicial

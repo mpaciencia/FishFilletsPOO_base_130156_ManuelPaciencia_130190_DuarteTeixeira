@@ -1,28 +1,27 @@
 package objects;
 
+import interfaces.Big;
 import interfaces.Lightweight;
 import interfaces.Pushable;
-import interfaces.Small;
 import pt.iscte.poo.game.Room;
 
-public class Cup extends GameObject implements Pushable, Lightweight, Small{
-    public Cup(Room room){
+public class Stone extends GameObject implements Pushable, Lightweight{
+    public Stone(Room room){
         super(room);
     }
 
     @Override
     public String getName(){
-        return "cup";
+        return "rock";
     }
 
     @Override
     public int getLayer(){
         return 1;
     }
-
     @Override
     public boolean isPushableBy(GameObject gameObject){
-        if(gameObject instanceof GameCharacter)
+        if(gameObject instanceof Big)
             return true;
         return false;
     }
