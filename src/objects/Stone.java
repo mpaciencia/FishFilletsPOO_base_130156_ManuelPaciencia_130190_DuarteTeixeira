@@ -12,7 +12,7 @@ public class Stone extends GameObject implements Pushable, Lightweight{
 
     @Override
     public String getName(){
-        return "rock";
+        return "stone";
     }
 
     @Override

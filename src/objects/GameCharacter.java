@@ -2,6 +2,7 @@ package objects;
 
 import java.util.List;
 
+import interfaces.Transposable;
 import interfaces.Untransposable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;

@@ -12,7 +12,7 @@ public class HoledWall extends GameObject implements Untransposable, Transposabl
 
 	@Override
 	public String getName() {
-		return "Holedwall";
+		return "holedWall";
 	}	
 
 	@Override
