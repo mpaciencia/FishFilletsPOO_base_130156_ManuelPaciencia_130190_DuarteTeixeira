@@ -2,7 +2,7 @@ package objects;
 
 import java.util.List;
 
-import interfaces.Intransposable;
+import interfaces.Untransposable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
@@ -22,7 +22,7 @@ public abstract class GameCharacter extends GameObject {
 		
 		for(GameObject obj : todosOsObjetos){
 			if(obj.getPosition().equals(destination)){
-				if(obj instanceof Intransposable){
+				if(obj instanceof Untransposable){
 					canMove = false;
 					break;
 				}

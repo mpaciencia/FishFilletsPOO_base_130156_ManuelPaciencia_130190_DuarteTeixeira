@@ -70,63 +70,82 @@ public class Room {
 	}
 	
 	public static Room readRoom(File f, GameEngine engine) {
-	    
-	    Room r = new Room();
-	    r.setEngine(engine);
-	    r.setName(f.getName());
 
-	    for(int i = 0; i<10;i++) {
-	    	for(int j = 0; j<10;j++) {
-	    		  GameObject water = new Water(r); 
-	    		    water.setPosition(new Point2D(i, j));
-	    		    r.getObjects().add(water); 
-	    	}
-	    }
-	    try (Scanner scanner = new Scanner(f)) { 
-	        int y = 0;
-	        while (scanner.hasNextLine()) {
-	            String line = scanner.nextLine();   
-	            for (int x = 0; x < line.length(); x++) {
-	                
-	                char c = line.charAt(x);
-	                Point2D position = new Point2D(x, y);
-	                GameObject obj = null; 
+		// Cria uma nova Room e associa o engine e o nome do ficheiro
+		Room r = new Room();
+		r.setEngine(engine);
+		r.setName(f.getName());
 
-	                switch (c) {
-	                    case 'W': 
-	                        obj = new Wall(r);
-	                        break;
-	                    case 'B': 
-	                        obj = BigFish.getInstance(); 
-	                        r.setBigFishStartingPosition(position); 
-	                        break;
-	                    case 'S': // Peixe Pequeno
-	                        obj = SmallFish.getInstance(); 
-	                        r.setSmallFishStartingPosition(position); 
-	                        break;	                    	                    
-	                    case 'H': 
-	                        obj = new SteelHorizontal(r);
-	                        break;
+		// Inicialmente preenche toda a grelha 10x10 com água
+		// Isto garante que cada posição tem um objecto base (Water).
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				GameObject water = new Water(r);
+				water.setPosition(new Point2D(i, j));
+				r.getObjects().add(water);
+			}
+		}
+
+		// Lê o ficheiro do nível linha a linha e converte caracteres em objectos
+		// Cada linha representa uma linha y do mapa; cada caractere uma coluna x.
+		try (Scanner scanner = new Scanner(f)) {
+			int y = 0; // Coordenada y atual (linha)
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				// Para cada carácter na linha, criamos o objecto correspondente
+				for (int x = 0; x < line.length(); x++) {
+					char c = line.charAt(x);
+					Point2D position = new Point2D(x, y);
+					GameObject obj = null; // Vai conter o objecto criado para esta célula
+
+					switch (c) {
+						case 'W':
+							// Parede sólida
+							obj = new Wall(r);
+							break;
+						case 'B':
+							// Posição inicial do peixe grande (apenas guardamos a posição)
+							obj = BigFish.getInstance();
+							r.setBigFishStartingPosition(position);
+							break;
+						case 'S':
+							// Posição inicial do peixe pequeno (apenas guardamos a posição)
+							obj = SmallFish.getInstance();
+							r.setSmallFishStartingPosition(position);
+							break;
+						case 'H':
+							// Azulejo de aço horizontal
+							obj = new SteelHorizontal(r);
+							break;
 						case 'X':
+							// Parede com buraco
 							obj = new HoledWall(r);
-							break;	                    
-	                    case 'C': 	                        
-	                        break;   
-	                } 
-	                if (obj != null) {
-	                    obj.setPosition(position);
-	                    r.getObjects().add(obj);
-	                }
-	            }
-	            y++;
-	        }
+							break;
+						case 'C':
+							// Carácter 'C' reservado / sem objecto a criar aqui
+							break;
+						default:
+							// Qualquer outro carácter é ignorado (mantém-se Water existente)
+							break;
+					}
 
-	    } catch (FileNotFoundException e) {
-	        System.err.println("ERRO: Ficheiro do nível não encontrado: " + f.getName());
-	        e.printStackTrace();
-	    }
-	    
-	    return r;
+					// Se foi criado um objecto, define a sua posição e adiciona à lista
+					if (obj != null) {
+						obj.setPosition(position);
+						r.getObjects().add(obj);
+					}
+				}
+				y++; // Passa para a próxima linha (y+1)
+			}
+
+		} catch (FileNotFoundException e) {
+			// Em caso de erro a abrir o ficheiro, informa no stderr e imprime stacktrace
+			System.err.println("ERRO: Ficheiro do nível não encontrado: " + f.getName());
+			e.printStackTrace();
+		}
+
+		// Retorna a Room construída (com água e objectos sobrepostos onde aplicável)
+		return r;
 	}
 	
 }

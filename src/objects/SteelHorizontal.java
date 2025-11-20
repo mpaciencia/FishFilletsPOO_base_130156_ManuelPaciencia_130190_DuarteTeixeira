@@ -1,9 +1,9 @@
 package objects;
 
-import interfaces.Intransposable;
+import interfaces.Untransposable;
 import pt.iscte.poo.game.Room;
 
-public class SteelHorizontal extends GameObject implements Intransposable{
+public class SteelHorizontal extends GameObject implements Untransposable{
 
 	public SteelHorizontal(Room room) {
 		super(room);
@@ -18,9 +18,5 @@ public class SteelHorizontal extends GameObject implements Intransposable{
 	public int getLayer() {
 		return 1;
 	}
-
-	@Override
-    public void moveHandler() {
-    }
 
 }

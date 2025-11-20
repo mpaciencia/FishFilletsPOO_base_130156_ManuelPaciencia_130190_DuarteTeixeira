@@ -1,11 +1,11 @@
 package objects;
 
-import interfaces.Intransposable;
+import interfaces.Untransposable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public class BigFish extends GameCharacter implements Intransposable{
+public class BigFish extends GameCharacter implements Untransposable{
 
 	private static BigFish bf = new BigFish(null);
 	private String currentImage = "bigFishLeft"; // imagem inicial
@@ -42,7 +42,4 @@ public class BigFish extends GameCharacter implements Intransposable{
 			}
 		}
 	}
-	@Override
-    public void moveHandler() {
-    }
 }
