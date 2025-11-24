@@ -3,8 +3,8 @@ package objects;
 import interfaces.Untransposable;
 import pt.iscte.poo.game.Room;
 
-public class steelVertical extends GameObject implements Untransposable{
-    public steelVertical(Room room) {
+public class SteelVertical extends GameObject implements Untransposable{
+    public SteelVertical(Room room) {
 		super(room);
 	}
 

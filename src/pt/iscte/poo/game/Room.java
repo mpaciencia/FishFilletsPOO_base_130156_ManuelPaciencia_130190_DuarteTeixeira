@@ -84,7 +84,13 @@ public class Room {
 			int y = 0; 
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
-
+				//nao deixa ler ficheiros que nao sejam 10x10
+				if (line.length() > 10) {
+					throw new IllegalArgumentException("Erro no mapa " + f.getName() + ": Linha " + y + " demasiado longa (" + line.length() + " chars). Max: 10.");
+				}
+				if (y >= 10) {
+					throw new IllegalArgumentException("Erro no mapa " + f.getName() + ": O ficheiro tem demasiadas linhas (Max: 10).");
+				}
 				for (int x = 0; x < line.length(); x++) {
 					char c = line.charAt(x);
 					Point2D position = new Point2D(x, y);
@@ -127,7 +133,7 @@ public class Room {
 							obj = new Trunk(r);
 							break;
 						case 'V':
-							obj = new steelVertical(r);
+							obj = new SteelVertical(r);
 							break;
 						default:
 							// qualquer outro caracter é ignorado

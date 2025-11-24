@@ -24,6 +24,13 @@ public abstract class GameCharacter extends GameObject implements Untransposable
 		for(GameObject obj : todosOsObjetos){
 			if(obj.getPosition().equals(destination)){
 				if(obj instanceof Untransposable){
+					//dentro dos objetos untransposable, vemos quais podem ser passados pelos pikenos
+					if(obj instanceof Transposable){
+						Transposable t = (Transposable) obj;
+						if(t.isTransposableBy(this)){
+							continue;
+						}
+					}
 					canMove = false;
 					break;
 				}
@@ -37,5 +44,4 @@ public abstract class GameCharacter extends GameObject implements Untransposable
 	public int getLayer() {
 		return 2;
 	}
-	
 }
