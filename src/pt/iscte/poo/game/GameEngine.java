@@ -54,6 +54,7 @@ public class GameEngine implements Observer {
 			}
 			else if(k == KeyEvent.VK_R){
 				System.out.println("nivel reiniciado");
+				
 			}
 		}
 

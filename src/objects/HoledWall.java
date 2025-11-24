@@ -1,5 +1,6 @@
 package objects;
 
+import interfaces.Small;
 import interfaces.Transposable;
 import interfaces.Untransposable;
 import pt.iscte.poo.game.Room;
@@ -23,7 +24,7 @@ public class HoledWall extends GameObject implements Untransposable, Transposabl
 	@Override
 	public boolean isTransposableBy(GameObject gameObject){
 		//taça e peixe pequeno passam
-		if(gameObject instanceof SmallFish || gameObject instanceof Cup)
+		if(gameObject instanceof Small)
 			return true;
 		return false;
 	}
