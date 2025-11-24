@@ -2,6 +2,7 @@ package objects;
 
 import java.util.List;
 
+import interfaces.Pushable;
 import interfaces.Transposable;
 import interfaces.Untransposable;
 import pt.iscte.poo.game.Room;
@@ -23,6 +24,24 @@ public abstract class GameCharacter extends GameObject implements Untransposable
 		
 		for(GameObject obj : todosOsObjetos){
 			if(obj.getPosition().equals(destination)){
+
+				if(obj instanceof Pushable){
+					Pushable p = (Pushable) obj;
+					if(p.isPushableBy(this)){	
+						Point2D pushDestination = obj.getPosition().plus(v);
+						for(GameObject obj_2 : todosOsObjetos){
+							if(obj_2.getPosition().equals(pushDestination)){
+								if(obj_2 instanceof Untransposable){
+									canMove = false;
+									break;
+								}
+								
+							}
+						}
+						
+					}
+				}
+
 				if(obj instanceof Untransposable){
 					//dentro dos objetos untransposable, vemos quais podem ser passados pelos pikenos
 					if(obj instanceof Transposable){
