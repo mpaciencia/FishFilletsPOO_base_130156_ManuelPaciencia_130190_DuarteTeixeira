@@ -65,6 +65,16 @@ public class GameEngine implements Observer {
 			}
 			else if(k == KeyEvent.VK_R){
 				System.out.println("nivel reiniciado");
+				loadGame();
+
+				String levelName = currentRoom.getName();
+
+				currentRoom = rooms.get(levelName);
+
+				SmallFish.getInstance().setRoom(currentRoom);
+				BigFish.getInstance().setRoom(currentRoom);
+
+				updateGUI();
 			}
 		}
 
