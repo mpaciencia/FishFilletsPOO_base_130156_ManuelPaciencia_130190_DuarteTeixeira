@@ -36,6 +36,7 @@ public class GameEngine implements Observer {
 
 	@Override
 	public void update(Observed source) {
+		ImageGUI gui = ImageGUI.getInstance();
 
 		if (ImageGUI.getInstance().wasKeyPressed()) {
 			int k = ImageGUI.getInstance().keyPressed();
@@ -43,14 +44,17 @@ public class GameEngine implements Observer {
 			if(Direction.isDirection(k)){
 				Direction dir = Direction.directionFor(k);
 			
-				if(smallSelected)
+				if(smallSelected){
 					SmallFish.getInstance().move(dir);
+					gui.setStatusMessage("Peixe pikeno");}
 				else{
 					BigFish.getInstance().move(dir);
+					gui.setStatusMessage("Peixe grande");
 				}
 			}
 			else if(k == KeyEvent.VK_SPACE){
 				smallSelected = !smallSelected;
+				
 			}
 			else if(k == KeyEvent.VK_R){
 				System.out.println("nivel reiniciado");

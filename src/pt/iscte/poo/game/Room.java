@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import interfaces.Pushable;
+import interfaces.Untransposable;
 import objects.*;
 import pt.iscte.poo.utils.Point2D;
 
@@ -45,6 +47,15 @@ public class Room {
 	
 	public List<GameObject> getObjects() {
 		return objects;
+	}
+
+	public GameObject getObjectAt(Point2D position){
+		GameObject top = null;
+		for(GameObject obj : objects){
+			if(obj.getPosition().equals(position))
+				top = obj;
+		}
+		return top;
 	}
 
 	public void setSmallFishStartingPosition(Point2D heroStartingPosition) {

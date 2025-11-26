@@ -73,6 +73,10 @@ public abstract class GameCharacter extends GameObject implements Untransposable
         if(canMove){
             setPosition(destination);
         }
+            if(destination.getX() < 0 || destination.getX() >= 10 ||
+               destination.getY() < 0 || destination.getY() >= 10){
+                getRoom().removeObject(this);
+               }
     }
 
     @Override
