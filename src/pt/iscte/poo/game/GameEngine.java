@@ -76,6 +76,7 @@ public class GameEngine implements Observer {
 	}
 
 	private void processTick() {
+		
 		//iteramos por uma copia dos objetos para evitar erros 
 		for(GameObject obj : new ArrayList<>(currentRoom.getObjects())){
 			if(obj instanceof GravityAffected){

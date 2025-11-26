@@ -9,75 +9,65 @@ import pt.iscte.poo.utils.Vector2D;
 
 public abstract class GameCharacter extends GameObject implements Untransposable{
     
+    private boolean hasAlreadyMoved;
+
     public GameCharacter(Room room) {
         super(room);
+        this.hasAlreadyMoved = false;
     }
     
     public void move(Direction dir) {
-        Vector2D v = dir.asVector();
-        boolean canMove = true;
-        List<GameObject> todosOsObjetos = getRoom().getObjects();
-        Point2D destination = getPosition().plus(v);
-        
-        for(GameObject obj : todosOsObjetos){
-            if(obj.getPosition().equals(destination)){
-                
-                if(obj instanceof Pushable){
-                    //if com isPushableBy
-                    if(((Pushable)obj).isPushableBy(this)){
-                        Point2D pushDestination = destination.plus(v);
-                        boolean destinoLivre = true;
-                        
-                        for(GameObject obj2 : todosOsObjetos){
-                            if(obj2.getPosition().equals(pushDestination)){
-								//é solido nao passa
-                                if(obj2 instanceof Untransposable){
-                                    destinoLivre = false;
-                                    break;
-                                }//outro objeto tambem nao anda
-                                if(obj2 instanceof Pushable){
-                                    destinoLivre = false;
-                                    break;
-                                }
-                            }
-                        }
-                        if(destinoLivre){
-                            obj.setPosition(pushDestination);
-                            // move e continua
-                            continue;
-                        } else {
-                            // se não der para mover mandamos foder
-                            canMove = false;
-                            break;
-                        }
-                    } else {
-                        // não é pushable por este gajo
-                        canMove = false;
-                        break;
-                    }
-                }      
-                if(obj instanceof Untransposable){
-                    //dentro dos objetos untransposable, vemos quais podem ser passados pelos pikenos
-                    if(obj instanceof Transposable){
-                        Transposable t = (Transposable) obj;
-                        if(t.isTransposableBy(this)){
-                            continue;
-                        }
-                    }
-                    canMove = false;
-                    break;
-                }
-            }
-        }
-        
-        if(canMove){
-            setPosition(destination);
-        }
-            if(destination.getX() < 0 || destination.getX() >= 10 ||
-               destination.getY() < 0 || destination.getY() >= 10){
-                getRoom().removeObject(this);
-               }
-    }
+		Vector2D v = dir.asVector();
+	    Point2D destination = getPosition().plus(v);
+	    
+	    boolean canMove = true; 
+	    
+	    List<GameObject> todosOsObjetos = getRoom().getObjects();
+	    
+	    for (GameObject obj : todosOsObjetos) {
+	        if (obj.getPosition().equals(destination)) {
+	            
+	            if (obj instanceof Pushable) {
+	                canMove = false; 
+	                
+	                if (((Pushable) obj).isPushableBy(this)) {
+	                    Point2D pushDestination = destination.plus(v);
+	                    GameObject target = getRoom().getObjectAt(pushDestination);
+	                    GameObject beingPushed = getRoom().getObjectAt(destination);
+	                    if (!(target instanceof Untransposable) || target instanceof Transposable)  {
+	                    		if(beingPushed instanceof Anchor && (hasAlreadyMoved == false) && v.getY() == 0) {
+	    	                    		obj.setPosition(pushDestination);
+	    	       	                    canMove = true; 
+	    	       	                    hasAlreadyMoved = true;	
+	                    		}
+	                    		
+	                    	if(!(target instanceof Pushable) && !(beingPushed instanceof Anchor)) {
+	                        obj.setPosition(pushDestination);
+	                        canMove = true; 
+	                    	}
+	                    }
+	                }
+	                break;
+	            }
+	            if (obj instanceof Untransposable) {
+	                if (obj instanceof Transposable) {
+	                    if (!((Transposable) obj).isTransposableBy(this)) {
+	                         canMove = false;
+	                         break; 
+	                    }
+	                } 
+	                else {
+	                    canMove = false;
+	                    break; 
+	                }
+	            }
+	        }
+	    }
+	    
+	    if (canMove) {
+	        setPosition(destination);
+	    }	
+	}
 
     @Override
     public int getLayer() {
