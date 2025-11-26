@@ -1,15 +1,23 @@
 package pt.iscte.poo.game;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import interfaces.GravityAffected;
+
 import java.awt.event.KeyEvent;
 import objects.SmallFish;
 import objects.BigFish;
+import objects.GameObject;
+import objects.*;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.observer.Observed;
 import pt.iscte.poo.observer.Observer;
 import pt.iscte.poo.utils.Direction;
+import pt.iscte.poo.utils.Point2D;
+
 
 public class GameEngine implements Observer {
 	
@@ -54,11 +62,9 @@ public class GameEngine implements Observer {
 			}
 			else if(k == KeyEvent.VK_SPACE){
 				smallSelected = !smallSelected;
-				
 			}
 			else if(k == KeyEvent.VK_R){
 				System.out.println("nivel reiniciado");
-				
 			}
 		}
 
@@ -69,7 +75,19 @@ public class GameEngine implements Observer {
 		ImageGUI.getInstance().update();
 	}
 
-	private void processTick() {		
+	private void processTick() {
+		//iteramos por uma copia dos objetos para evitar erros 
+		for(GameObject obj : new ArrayList<>(currentRoom.getObjects())){
+			if(obj instanceof GravityAffected){
+				Point2D posBelow = obj.getPosition().plus(Direction.DOWN.asVector());
+				GravityAffected fallingObj = (GravityAffected) obj;
+				//não está suportado? cai
+				if(!(fallingObj.isSupported())){
+					obj.setPosition(posBelow);
+				}
+			}
+		}
+
 		lastTickProcessed++;
 	}
 

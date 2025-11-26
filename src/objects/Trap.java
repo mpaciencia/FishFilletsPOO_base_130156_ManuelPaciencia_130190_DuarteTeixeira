@@ -16,7 +16,7 @@ public class Trap extends GameObject implements Heavy, Transposable{
 
     @Override
     public int getLayer(){
-        return 1;
+        return 0;
     }
 
     @Override
