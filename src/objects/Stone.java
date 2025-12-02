@@ -2,13 +2,14 @@ package objects;
 
 import interfaces.Big;
 import interfaces.GravityAffected;
+import interfaces.Heavy;
 import interfaces.Lightweight;
 import interfaces.Pushable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public class Stone extends GameObject implements Pushable, Lightweight, GravityAffected{
+public class Stone extends GameObject implements Pushable, Heavy, GravityAffected{
     public Stone(Room room){
         super(room);
     }

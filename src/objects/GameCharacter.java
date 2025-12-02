@@ -3,44 +3,50 @@ package objects;
 import java.util.List;
 import interfaces.*;
 import pt.iscte.poo.game.Room;
+import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
 public abstract class GameCharacter extends GameObject implements Untransposable{
     
-    private boolean hasAlreadyMoved;
+    boolean hasAlreadyMoved;
 
     public GameCharacter(Room room) {
         super(room);
         this.hasAlreadyMoved = false;
     }
     
-    public void move(Direction dir) {
+	public void move(Direction dir) {
 		Vector2D v = dir.asVector();
 	    Point2D destination = getPosition().plus(v);
-	    
 	    boolean canMove = true; 
-	    
 	    List<GameObject> todosOsObjetos = getRoom().getObjects();
-	    
+
 	    for (GameObject obj : todosOsObjetos) {
-	        if (obj.getPosition().equals(destination)) {
-	            
+	        if (obj.getPosition().equals(destination)) {  
 	            if (obj instanceof Pushable) {
 	                canMove = false; 
-	                
 	                if (((Pushable) obj).isPushableBy(this)) {
 	                    Point2D pushDestination = destination.plus(v);
 	                    GameObject target = getRoom().getObjectAt(pushDestination);
 	                    GameObject beingPushed = getRoom().getObjectAt(destination);
 	                    if (!(target instanceof Untransposable) || target instanceof Transposable)  {
-	                    		if(beingPushed instanceof Anchor && (hasAlreadyMoved == false) && v.getY() == 0) {
-	    	                    		obj.setPosition(pushDestination);
-	    	       	                    canMove = true; 
-	    	       	                    hasAlreadyMoved = true;	
+	                    		if(beingPushed instanceof Anchor && hasAlreadyMoved == false) {
+	                    			if(v.getY()== 0) {
+	    	                    			   obj.setPosition(pushDestination);
+	    	       	                        canMove = true; 
+	    	       	                     hasAlreadyMoved = true;
+	                    			}
+	                    			else {
+	                    				 obj.setPosition(pushDestination);
+	    	       	                        canMove = true;
+	                    			}
 	                    		}
-	                    		
+	                    	if(target instanceof Transposable && ((Transposable)target).isTransposableBy(beingPushed)== false) {
+	                    		 canMove = false;
+		                         break; 
+	                    	}
 	                    	if(!(target instanceof Pushable) && !(beingPushed instanceof Anchor)) {
 	                        obj.setPosition(pushDestination);
 	                        canMove = true; 
@@ -51,7 +57,7 @@ public abstract class GameCharacter extends GameObject implements Untransposable
 	            }
 	            if (obj instanceof Untransposable) {
 	                if (obj instanceof Transposable) {
-	                    if (!((Transposable) obj).isTransposableBy(this)) {
+	                    if (!((Transposable) obj).isTransposableBy(this) ) {
 	                         canMove = false;
 	                         break; 
 	                    }
@@ -66,7 +72,15 @@ public abstract class GameCharacter extends GameObject implements Untransposable
 	    
 	    if (canMove) {
 	        setPosition(destination);
-	    }	
+	    }
+		//verificação se está out of bounds
+		if(destination.getX() < 0 || destination.getX() >= 10 ||
+   			destination.getY() < 0 || destination.getY() >= 10){
+    		getRoom().removeObject(this);}	
+	}
+
+	public void resetState() {
+		this.hasAlreadyMoved = false;
 	}
 
     @Override

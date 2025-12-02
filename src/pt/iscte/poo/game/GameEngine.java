@@ -7,6 +7,7 @@ import java.util.Map;
 
 import interfaces.*;
 
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import objects.SmallFish;
 import objects.BigFish;
@@ -44,7 +45,11 @@ public class GameEngine implements Observer {
 
 	@Override
 	public void update(Observed source) {
-		ImageGUI gui = ImageGUI.getInstance();
+
+		if(checkWin()){
+			nextLevel();
+			return;
+		}
 
 		if (ImageGUI.getInstance().wasKeyPressed()) {
 			int k = ImageGUI.getInstance().keyPressed();
@@ -54,16 +59,17 @@ public class GameEngine implements Observer {
 			
 				if(smallSelected){
 					SmallFish.getInstance().move(dir);
-					gui.setStatusMessage("Peixe pikeno");}
+					ImageGUI.getInstance().setStatusMessage("Peixe pikeno");}
 				else{
 					BigFish.getInstance().move(dir);
-					gui.setStatusMessage("Peixe grande");
+					ImageGUI.getInstance().setStatusMessage("Peixe grande");
 				}
 			}
 			else if(k == KeyEvent.VK_SPACE){
 				smallSelected = !smallSelected;
 			}
 			else if(k == KeyEvent.VK_R){
+				ImageGUI.getInstance().showMessage("Nível reiniciado", "Tecla 'r' pressionada");
 				restartGame();
 			}
 		}
@@ -82,9 +88,9 @@ public class GameEngine implements Observer {
 			if(obj instanceof GravityAffected){
 				Point2D posBelow = obj.getPosition().plus(Direction.DOWN.asVector());
 				GravityAffected fallingObj = (GravityAffected) obj;
-				boolean peixePequenoEmBaixo = SmallFish.getInstance().getPosition().equals(posBelow);
+				//boolean peixePequenoEmBaixo = SmallFish.getInstance().getPosition().equals(posBelow);
 				//não está suportado? cai
-				if(!fallingObj.isSupported() || peixePequenoEmBaixo && obj instanceof Heavy){
+				if(!fallingObj.isSupported()){
 					obj.setPosition(posBelow);
 				}
 			}
@@ -107,13 +113,13 @@ public class GameEngine implements Observer {
 			stackWeight++;
 			//peixe pequeno nao suporta 1 pesado
 			if(objAbove instanceof Heavy){
-				System.out.println("Peixe morreu esmagado por gorda");
+				ImageGUI.getInstance().showMessage("Nivel reiniciado", "Peixe pequeno esmagado");
 				restartGame();
 				return;
 			}
 		}//peixe pequeno 
 		if(stackWeight >= 2){
-			System.out.println("RIP demasiados leves");
+			ImageGUI.getInstance().showMessage("Nivel reiniciado", "Peixe pequeno esmagado");
 			restartGame();
 		}
 	}
@@ -129,28 +135,74 @@ public class GameEngine implements Observer {
 			//se nao tiver objetos em cima siga embora daqui
 			if (objAbove == null || !(objAbove instanceof GravityAffected)) {
 				break;
-			}
+			}//incrementa o peso se tiver pesado em cima
 			if (objAbove instanceof interfaces.Heavy) {
 				heavyStackWeight++;
 			}
 		}
 		if (heavyStackWeight >= 2) {
-			System.out.println("Peixe Grande esmagado por " + heavyStackWeight + " gordas");
+			ImageGUI.getInstance().showMessage("Nivel reiniciado", "Peixe Grandão esmagado");
 			restartGame();
 		}
 	}
 
+	public boolean checkWin() {
+		// verifica se esta fora dos limites peixe pikeno
+		Point2D sPos = SmallFish.getInstance().getPosition();
+		boolean smallFishOut = sPos.getX() < 0 || sPos.getX() >= 10 || sPos.getY() < 0 || sPos.getY() >= 10;
+		
+		// verifica se esta fora dos limites peixe grande
+		Point2D bPos = BigFish.getInstance().getPosition();
+		boolean bigFishOut = bPos.getX() < 0 || bPos.getX() >= 10 || bPos.getY() < 0 || bPos.getY() >= 10;
+
+		// ganharam a champions
+		return smallFishOut && bigFishOut;
+	}
+
 	public void restartGame(){
 
-		System.out.println("nivel reiniciado");
 		loadGame();
 		String levelName = currentRoom.getName();
 		currentRoom = rooms.get(levelName);
 		SmallFish.getInstance().setRoom(currentRoom);
 		BigFish.getInstance().setRoom(currentRoom);
-//		SmallFish.getInstance().setPosition(currentRoom.getSmallFishStartingPosition());
-//      BigFish.getInstance().setPosition(currentRoom.getBigFishStartingPosition());
+		//resetar os atributos
+		SmallFish.getInstance().resetState();
+		BigFish.getInstance().resetState();
+		
 		updateGUI();
+	}
+
+	public void nextLevel(){
+		//nivel atual
+		String currentName = currentRoom.getName();
+		//nome começa no quarto index (roomX) e tiramos o .txt
+		String numberStr = currentName.substring(4,currentName.indexOf('.'));
+		int currentLevelIndex = Integer.parseInt(numberStr);
+		//proximo nivel é so somar um
+		int nextLevelIndex = currentLevelIndex + 1;
+		String nextRoomName = "room" + nextLevelIndex + ".txt";
+		if(rooms.containsKey(nextRoomName)){
+			ImageGUI.getInstance().showMessage("Nível completo", "Passaste ao nível" + nextLevelIndex);
+			//nova sala
+			currentRoom = rooms.get(nextRoomName);
+			//os peixes mudaram de sala
+			SmallFish.getInstance().setRoom(currentRoom);
+			BigFish.getInstance().setRoom(currentRoom);
+			//mete os peixes no novo mapa
+			SmallFish.getInstance().setPosition(currentRoom.getSmallFishStartingPosition());
+        	BigFish.getInstance().setPosition(currentRoom.getBigFishStartingPosition());
+			//limpa estados antigos
+			SmallFish.getInstance().resetState();
+			BigFish.getInstance().resetState();
+
+			updateGUI();
+			System.out.println("Nivel" + nextLevelIndex + "iniciado!");
+		} else {//nao existem mais niveis
+			ImageGUI.getInstance().showMessage("vitoria", "completaste todos os niveis");
+			ImageGUI.getInstance().dispose();
+			System.exit(0);
+		}
 	}
 
 	public void updateGUI() {
