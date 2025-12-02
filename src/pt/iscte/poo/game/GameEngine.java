@@ -8,10 +8,9 @@ import java.util.Map;
 import interfaces.*;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
-import objects.SmallFish;
-import objects.BigFish;
-import objects.GameObject;
+
 import objects.*;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.observer.Observed;
@@ -31,9 +30,13 @@ public class GameEngine implements Observer {
 		rooms = new HashMap<String,Room>();
 		loadGame();
 		currentRoom = rooms.get("room0.txt");
-		updateGUI();		
+
 		SmallFish.getInstance().setRoom(currentRoom);
 		BigFish.getInstance().setRoom(currentRoom);
+
+		SmallFish.getInstance().setPosition(currentRoom.getSmallFishStartingPosition());
+		BigFish.getInstance().setPosition(currentRoom.getBigFishStartingPosition());
+		updateGUI();	
 	}
 
 	private void loadGame() {
@@ -86,18 +89,67 @@ public class GameEngine implements Observer {
 		//iteramos por uma copia dos objetos para evitar erros 
 		for(GameObject obj : new ArrayList<>(currentRoom.getObjects())){
 			if(obj instanceof GravityAffected){
-				Point2D posBelow = obj.getPosition().plus(Direction.DOWN.asVector());
-				GravityAffected fallingObj = (GravityAffected) obj;
-				//boolean peixePequenoEmBaixo = SmallFish.getInstance().getPosition().equals(posBelow);
-				//não está suportado? cai
-				if(!fallingObj.isSupported()){
-					obj.setPosition(posBelow);
-				}
+				applyGravity((GravityAffected) obj);
 			}
+			if (obj instanceof Floatable) {
+            	applyBuoyancy((Floatable) obj); // Método auxiliar novo
+        	}
 		}
 		checkSmallFishCrush();
 		checkBigFishCrush();
+		checkTraps();
+		checkTrunkCrush();
 		lastTickProcessed++;
+	}
+	//metodo auxiliar para aplicar a gravidade
+	public void applyGravity(GravityAffected objInterface){
+		GameObject obj = (GameObject) objInterface;
+		if(!objInterface.isSupported()){
+			Point2D posBelow = obj.getPosition().plus(Direction.DOWN.asVector());
+			obj.setPosition(posBelow);
+		}
+	}
+
+	public void applyBuoyancy(Floatable objInterface) {
+        GameObject obj = (GameObject) objInterface;
+        Point2D currentPos = obj.getPosition();
+        Point2D posAbove = currentPos.plus(Direction.UP.asVector());
+        Point2D posBelow = currentPos.plus(Direction.DOWN.asVector());
+
+        GameObject objAbove = currentRoom.getObjectAt(posAbove);
+
+        // Define se tem carga (algo que não seja Água nem Peixe)
+        boolean hasLoad = (objAbove != null && objAbove instanceof GravityAffected);
+
+        if (hasLoad) {
+            // --- RAMO 1: TEM CARGA -> TENTA AFUNDAR ---
+            GameObject objBelow = currentRoom.getObjectAt(posBelow);
+            if (objBelow == null || objBelow instanceof Water) {
+                obj.setPosition(posBelow);
+            }
+        } else {
+            // --- RAMO 2: NÃO TEM CARGA -> TENTA SUBIR ---
+            // Só sobe se o espaço acima for realmente água ou vazio (se for um peixe, fica quieta)
+            boolean canMoveUp = (objAbove == null || objAbove instanceof Water);
+            
+            if (canMoveUp && posAbove.getY() >= 0) {
+                obj.setPosition(posAbove);
+            }
+        }
+    }
+
+	public void checkTrunkCrush(){
+		for(GameObject obj : new ArrayList<>(currentRoom.getObjects())){
+			if(obj instanceof Trunk){
+				Point2D posAbove = obj.getPosition().plus(Direction.UP.asVector());
+
+				GameObject objAbove = currentRoom.getObjectAt(posAbove);
+
+				if(objAbove instanceof interfaces.Heavy){
+					currentRoom.removeObject(obj);
+				}
+			}
+		}
 	}
 
 	public void checkSmallFishCrush(){
@@ -112,7 +164,7 @@ public class GameEngine implements Observer {
 				break;
 			stackWeight++;
 			//peixe pequeno nao suporta 1 pesado
-			if(objAbove instanceof Heavy){
+			if(objAbove instanceof Heavy && !(objAbove instanceof Trap)){
 				ImageGUI.getInstance().showMessage("Nivel reiniciado", "Peixe pequeno esmagado");
 				restartGame();
 				return;
@@ -135,7 +187,14 @@ public class GameEngine implements Observer {
 			//se nao tiver objetos em cima siga embora daqui
 			if (objAbove == null || !(objAbove instanceof GravityAffected)) {
 				break;
-			}//incrementa o peso se tiver pesado em cima
+			}
+			//Se for uma Armadilha, morre logo
+			if (objAbove instanceof Trap) {
+				ImageGUI.getInstance().showMessage("Game Over", "O Peixe Grande tocou na armadilha!");
+				restartGame();
+				return;
+			}
+			//incrementa o peso se tiver pesado em cima
 			if (objAbove instanceof interfaces.Heavy) {
 				heavyStackWeight++;
 			}
@@ -158,14 +217,29 @@ public class GameEngine implements Observer {
 		// ganharam a champions
 		return smallFishOut && bigFishOut;
 	}
+	private void checkTraps() {
+		// Verifica se o Peixe Grande está na mesma posição que alguma Armadilha
+		Point2D bigFishPos = BigFish.getInstance().getPosition();
+		GameObject obj = currentRoom.getObjectAt(bigFishPos);
+		
+		// Se o objeto na posição do peixe for uma Armadilha...
+		if (obj instanceof Trap) {
+			ImageGUI.getInstance().showMessage("Game Over", "O Peixe Grande caiu na armadilha!");
+			restartGame();
+		}
+	}
 
 	public void restartGame(){
 
 		loadGame();
 		String levelName = currentRoom.getName();
 		currentRoom = rooms.get(levelName);
+
 		SmallFish.getInstance().setRoom(currentRoom);
 		BigFish.getInstance().setRoom(currentRoom);
+
+		SmallFish.getInstance().setPosition(currentRoom.getSmallFishStartingPosition());
+    	BigFish.getInstance().setPosition(currentRoom.getBigFishStartingPosition());
 		//resetar os atributos
 		SmallFish.getInstance().resetState();
 		BigFish.getInstance().resetState();

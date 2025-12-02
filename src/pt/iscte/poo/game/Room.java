@@ -146,6 +146,10 @@ public class Room {
 						case 'V':
 							obj = new SteelVertical(r);
 							break;
+						//boia
+						case 'F':
+							obj = new Buoy(r);
+							break;
 						default:
 							// qualquer outro caracter é ignorado
 							break;
