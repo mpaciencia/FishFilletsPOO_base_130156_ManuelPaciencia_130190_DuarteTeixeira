@@ -57,19 +57,44 @@ public class GameEngine implements Observer {
 		if (ImageGUI.getInstance().wasKeyPressed()) {
 			int k = ImageGUI.getInstance().keyPressed();
 
-			if(Direction.isDirection(k)){
+			if (Direction.isDirection(k)) {
 				Direction dir = Direction.directionFor(k);
-			
-				if(smallSelected){
-					SmallFish.getInstance().move(dir);
-					ImageGUI.getInstance().setStatusMessage("Peixe pikeno");}
-				else{
-					BigFish.getInstance().move(dir);
-					ImageGUI.getInstance().setStatusMessage("Peixe grande");
+
+				if (smallSelected) {
+					// Só move SE o peixe ainda estiver na lista de objetos da sala
+					if (currentRoom.getObjects().contains(SmallFish.getInstance())) {
+						SmallFish.getInstance().move(dir);
+					}
+				} else {
+					// O mesmo para o peixe grande
+					if (currentRoom.getObjects().contains(BigFish.getInstance())) {
+						BigFish.getInstance().move(dir);
+					}
 				}
+				for (GameObject obj : new ArrayList<>(currentRoom.getObjects())) {
+        			if (obj instanceof Crab) {
+            			((Crab) obj).moveRandom();
+        			}	
+    			}
 			}
-			else if(k == KeyEvent.VK_SPACE){
-				smallSelected = !smallSelected;
+			else if (k == KeyEvent.VK_SPACE) {
+				// Simular a troca
+				boolean targetSelection = !smallSelected;
+
+				// Verificar se o destino da troca é válido
+				if (targetSelection) {
+					// Quer mudar para o PEQUENO. Ele está na sala?
+					if (currentRoom.getObjects().contains(SmallFish.getInstance())) {
+						smallSelected = true;
+						ImageGUI.getInstance().setStatusMessage("Peixe pikeno selecionado");
+					}
+				} else {
+					// Quer mudar para o GRANDE. Ele está na sala?
+					if (currentRoom.getObjects().contains(BigFish.getInstance())) {
+						smallSelected = false;
+						ImageGUI.getInstance().setStatusMessage("Peixe grande selecionado");
+					}
+				}
 			}
 			else if(k == KeyEvent.VK_R){
 				ImageGUI.getInstance().showMessage("Nível reiniciado", "Tecla 'r' pressionada");
@@ -99,6 +124,7 @@ public class GameEngine implements Observer {
 		checkBigFishCrush();
 		checkTraps();
 		checkTrunkCrush();
+		checkCrabCollisions();
 		lastTickProcessed++;
 	}
 	//metodo auxiliar para aplicar a gravidade
@@ -204,18 +230,38 @@ public class GameEngine implements Observer {
 			restartGame();
 		}
 	}
+	private void checkCrabCollisions() {
+		for (GameObject obj : new ArrayList<>(currentRoom.getObjects())) {
+			if (obj instanceof Crab) {
+				Point2D crabPos = obj.getPosition();
 
+				// Colisão com Peixe Pequeno -> Game Over
+				if (SmallFish.getInstance().getPosition().equals(crabPos)) {
+					ImageGUI.getInstance().showMessage("Game Over", "O Peixe Pequeno foi apanhado pelo caranguejo!");
+					restartGame();
+					return;
+				}
+
+				// Colisão com Peixe Grande -> Caranguejo morre
+				if (BigFish.getInstance().getPosition().equals(crabPos)) {
+					currentRoom.removeObject(obj);
+					continue; // Passa ao próximo objeto
+				}
+
+				// Colisão com Armadilha -> Caranguejo morre
+				// procurar se há uma armadilha nesta posição
+				for (GameObject t : currentRoom.getObjects()) {
+					if (t instanceof Trap && t.getPosition().equals(crabPos)) {
+						currentRoom.removeObject(obj);
+						break;
+					}
+				}
+			}
+		}
+	}
+	//verifica se ambos os peixes sairam da sala, chamado no processTick
 	public boolean checkWin() {
-		// verifica se esta fora dos limites peixe pikeno
-		Point2D sPos = SmallFish.getInstance().getPosition();
-		boolean smallFishOut = sPos.getX() < 0 || sPos.getX() >= 10 || sPos.getY() < 0 || sPos.getY() >= 10;
-		
-		// verifica se esta fora dos limites peixe grande
-		Point2D bPos = BigFish.getInstance().getPosition();
-		boolean bigFishOut = bPos.getX() < 0 || bPos.getX() >= 10 || bPos.getY() < 0 || bPos.getY() >= 10;
-
-		// ganharam a champions
-		return smallFishOut && bigFishOut;
+		return(!(currentRoom.getObjects().contains(BigFish.getInstance())) && !(currentRoom.getObjects().contains(SmallFish.getInstance())));
 	}
 	private void checkTraps() {
 		// Verifica se o Peixe Grande está na mesma posição que alguma Armadilha

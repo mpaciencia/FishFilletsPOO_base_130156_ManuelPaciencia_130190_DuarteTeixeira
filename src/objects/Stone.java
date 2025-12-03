@@ -10,8 +10,15 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 public class Stone extends GameObject implements Pushable, Heavy, GravityAffected{
+    private boolean hasSpawnedCrab = false;
     public Stone(Room room){
         super(room);
+    }
+    public boolean hasSpawnedCrab(){
+        return hasSpawnedCrab;
+    }
+    public void setSpawnedCrab(boolean status) {
+    this.hasSpawnedCrab = status;
     }
 
     @Override
