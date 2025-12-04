@@ -22,7 +22,7 @@ public abstract class GameCharacter extends GameObject implements Untransposable
         Vector2D v = dir.asVector();
         Point2D destination = getPosition().plus(v);
 
-        // 1. Verificar limites do mapa
+        // Verificar limites do mapa
         if (destination.getX() < 0 || destination.getX() >= 10 || destination.getY() < 0 || destination.getY() >= 10) {
             getRoom().removeObject(this);
             return;
@@ -35,7 +35,7 @@ public abstract class GameCharacter extends GameObject implements Untransposable
         for (GameObject obj : objects) {
             if (obj.getPosition().equals(destination)) {
                 
-                // --- CASO 1: Objeto é de Empurrar (Pushable) ---
+                // objeto é pushable
                 if (obj instanceof Pushable) {
                     if (((Pushable) obj).isPushableBy(this)) {
                         
@@ -43,7 +43,7 @@ public abstract class GameCharacter extends GameObject implements Untransposable
                         if (!handlePushChain(v, destination)) {
                             blocked = true; 
                         } else {
-                            // --- SUCESSO NO EMPURRÃO: TENTAR SPAWN DO CARANGUEJO ---
+                            // empurrou - tenta spawnar o caranguejo
                             if (obj instanceof Stone && v.getY() == 0) {
                                 Stone stone = (Stone) obj;
                                 if (!stone.hasSpawnedCrab()) {
@@ -52,7 +52,7 @@ public abstract class GameCharacter extends GameObject implements Untransposable
                                     Point2D spawnPos = stoneNewPos.plus(Direction.UP.asVector());
                                     
                                     GameObject objAbove = getRoom().getObjectAt(spawnPos);
-                                    // Só nasce se o espaço acima estiver livre (null ou Water)
+                                    // Só nasce se o espaço acima estiver livre (nulo ou agua)
                                     if (objAbove == null || objAbove instanceof Water) {
                                         Crab babyCrab = new Crab(getRoom());
                                         babyCrab.setPosition(spawnPos);
@@ -61,7 +61,6 @@ public abstract class GameCharacter extends GameObject implements Untransposable
                                     }
                                 }
                             }
-                            // -------------------------------------------------------
                         }
                     } else {
                         blocked = true;
@@ -69,7 +68,7 @@ public abstract class GameCharacter extends GameObject implements Untransposable
                     break;
                 }
 
-                // --- CASO 2: Objeto é Parede (Untransposable) ---
+                // Objeto é Parede (Untransposable)
                 if (obj instanceof Untransposable) {
                     if (obj instanceof Transposable) {
                          if (!((Transposable) obj).isTransposableBy(this)) {
@@ -98,12 +97,12 @@ public abstract class GameCharacter extends GameObject implements Untransposable
 	    while (true) {
 	        GameObject objAhead = getTopObjectAt(currentPos);
 
-	        // 1. Se encontrámos Espaço Vazio (null)
+	        // Se encontrámos Espaço Vazio (null)
 	        if (objAhead == null) {
 	            break; // Caminho livre
 	        }
 
-	        // 2. Se encontrámos uma Parede com Buraco (Transposable)
+	        // Se encontrámos uma Parede com Buraco (Transposable)
 	        if (objAhead instanceof Transposable && objAhead instanceof Untransposable) {
 	    
 	            // Temos de ver quem está a tentar entrar no buraco.
@@ -120,12 +119,12 @@ public abstract class GameCharacter extends GameObject implements Untransposable
 	            }
 	        }
 
-	        // 3. Se é uma Parede Sólida normal (não tem buraco)
+	        // Se é uma Parede Sólida normal (não tem buraco)
 	        if (objAhead instanceof Untransposable) {
 	            return false; // Bloqueado
 	        }
 
-	        // 4. Se é um objeto de empurrar (Pushable), continuamos a cadeia
+	        // Se é um objeto de empurrar (Pushable), continuamos a cadeia
 	        if (objAhead instanceof Pushable) {
 	            toPush.add(objAhead);
 

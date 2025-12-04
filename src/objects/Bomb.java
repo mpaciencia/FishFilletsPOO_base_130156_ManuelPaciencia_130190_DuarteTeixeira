@@ -8,8 +8,19 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 public class Bomb extends GameObject implements Pushable, Explosive, GravityAffected{
+
+    private boolean isFalling = false;
+
     public Bomb(Room room){
         super(room);
+    }
+
+    public boolean isFalling(){
+        return isFalling;
+    }
+
+    public void setFalling(boolean falling){
+        this.isFalling = falling;
     }
 
     @Override

@@ -128,13 +128,45 @@ public class GameEngine implements Observer {
 		lastTickProcessed++;
 	}
 	//metodo auxiliar para aplicar a gravidade
-	public void applyGravity(GravityAffected objInterface){
-		GameObject obj = (GameObject) objInterface;
-		if(!objInterface.isSupported()){
-			Point2D posBelow = obj.getPosition().plus(Direction.DOWN.asVector());
-			obj.setPosition(posBelow);
-		}
-	}
+	public void applyGravity(GravityAffected objInterface) {
+        GameObject obj = (GameObject) objInterface;
+        
+        // Se NÃO tem suporte -> cai
+        if (!objInterface.isSupported()) {
+            Point2D posBelow = obj.getPosition().plus(Direction.DOWN.asVector());
+            obj.setPosition(posBelow);
+            
+            // Se for uma bomba, marcamos que está a cair
+            if (obj instanceof Bomb) {
+                ((Bomb) obj).setFalling(true);
+            }
+        } 
+        // Se TEM suporte (bateu ou está parada)
+        else {
+            if (obj instanceof Bomb) {
+                Bomb b = (Bomb) obj;
+                
+                // Se estava a cair E agora tem suporte -> boom
+                if (b.isFalling()) {
+                    
+                    // Ver o que está por baixo
+                    Point2D posBelow = b.getPosition().plus(Direction.DOWN.asVector());
+                    GameObject support = currentRoom.getObjectAt(posBelow);
+                    
+                    // Explode se bater num objeto (excluindo peixes)
+                    // isSupported já garante que não é Water.
+                    // Só precisamos garantir que não é um GameCharacter (Peixe/Caranguejo)
+                    if (!(support instanceof GameCharacter)) {
+                        explode(b);
+                    } else {
+                        // Se caiu em cima de um peixe, não explode (o peixe suporta-a sem detonar)
+                        // Mas o peixe pequeno morre pelo peso (tratado no checkSmallFishCrush)
+                        b.setFalling(false); 
+                    }
+                }
+            }
+        }
+    }
 
 	public void applyBuoyancy(Floatable objInterface) {
         GameObject obj = (GameObject) objInterface;
@@ -160,6 +192,34 @@ public class GameEngine implements Observer {
             
             if (canMoveUp && posAbove.getY() >= 0) {
                 obj.setPosition(posAbove);
+            }
+        }
+    }
+	// Método para tratar da explosão
+    private void explode(Bomb bomb) {
+        System.out.println("KABOOM!");
+        Point2D bombPos = bomb.getPosition();
+        
+        // 1. Remover a própria bomba
+        currentRoom.removeObject(bomb);
+        
+        // 2. Verificar as 4 direções adjacentes (Cima, Baixo, Esquerda, Direita)
+        for (Direction dir : Direction.values()) {
+            Point2D targetPos = bombPos.plus(dir.asVector());
+            
+            // Verificar se atingiu um peixe (Game Over)
+            if (SmallFish.getInstance().getPosition().equals(targetPos) || 
+                BigFish.getInstance().getPosition().equals(targetPos)) {
+                ImageGUI.getInstance().showMessage("Game Over", "O peixe explodiu!");
+                restartGame();
+                return;
+            }
+
+            // Verificar se há objetos para destruir
+            GameObject targetObj = currentRoom.getObjectAt(targetPos);
+            if (targetObj != null && !(targetObj instanceof Water) && !(targetObj instanceof GameCharacter)) {
+                // Remove paredes, pedras, etc.
+                currentRoom.removeObject(targetObj);
             }
         }
     }
