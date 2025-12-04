@@ -217,7 +217,7 @@ public class GameEngine implements Observer {
 
             // Verificar se há objetos para destruir
             GameObject targetObj = currentRoom.getObjectAt(targetPos);
-            if (targetObj != null && !(targetObj instanceof Water) && !(targetObj instanceof GameCharacter)) {
+            if (targetObj != null && !(targetObj instanceof Water) && !(targetObj instanceof BigFish) && !(targetObj instanceof SmallFish)) {
                 // Remove paredes, pedras, etc.
                 currentRoom.removeObject(targetObj);
             }

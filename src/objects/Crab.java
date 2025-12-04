@@ -33,7 +33,10 @@ public class Crab extends GameCharacter implements GravityAffected, Small, Trans
     public boolean isSupported() {
         Point2D posBelow = getPosition().plus(Direction.DOWN.asVector());
         GameObject objBelow = getRoom().getObjectAt(posBelow);
-        return objBelow != null && !(objBelow instanceof Water);
+
+        if(objBelow != null && !(objBelow instanceof Water) && !(objBelow instanceof Transposable))
+            return true;
+        return false;
     }
 
     // Lógica de movimento aleatório (apenas Esquerda/Direita)
