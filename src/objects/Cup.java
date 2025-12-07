@@ -24,6 +24,7 @@ public class Cup extends GameObject implements Pushable, Lightweight, Small, Gra
         return 1;
     }
 
+    // Qualquer GameCharacter (BigFish ou SmallFish) pode empurrar o copo
     @Override
     public boolean isPushableBy(GameObject gameObject){
         if(gameObject instanceof GameCharacter)

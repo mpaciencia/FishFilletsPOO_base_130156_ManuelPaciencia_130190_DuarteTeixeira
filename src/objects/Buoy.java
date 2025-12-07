@@ -7,6 +7,8 @@ import interfaces.Pushable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
 
+// Bóia: objeto flutuante leve que pode ser empurrado.
+// Interface Floatable indica regras de flutuação (ex.: sobe para a superfície).
 public class Buoy extends GameObject implements Pushable, Lightweight, Floatable{
     public Buoy(Room room){
         super(room);
@@ -22,6 +24,7 @@ public class Buoy extends GameObject implements Pushable, Lightweight, Floatable
         return 1;
     }
 
+    // Ambos os peixes podem empurrar a bóia (objeto leve)
     @Override
     public boolean isPushableBy(GameObject gameObject){
         //empurrado na vertical por ambos na horizontal

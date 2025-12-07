@@ -11,14 +11,14 @@ import pt.iscte.poo.utils.Vector2D;
 
 public abstract class GameCharacter extends GameObject implements Untransposable{
     
-    boolean hasAlreadyMoved;
+    boolean hasAlreadyMovedAnchorHorizontally;
 
     public GameCharacter(Room room) {
         super(room);
-        this.hasAlreadyMoved = false;
+        this.hasAlreadyMovedAnchorHorizontally = false;
     }
     
-	public void move(Direction dir) {
+    public void move(Direction dir) {
         Vector2D v = dir.asVector();
         Point2D destination = getPosition().plus(v);
 
@@ -85,97 +85,102 @@ public abstract class GameCharacter extends GameObject implements Untransposable
             setPosition(destination);
         }
     }
+    // Reseta o estado de movimento da âncora (chamado ao trocar de sala/peixe)
+    public void resetState() {
+        this.hasAlreadyMovedAnchorHorizontally = false;
+    }
+    // Lógica de empurrar em cadeia
+    private boolean handlePushChain(Vector2D v, Point2D startPos) {
+        List<GameObject> toPush = new ArrayList<>();
+        Point2D currentPos = startPos;
+        boolean isHorizontalMovement = (v.getY() == 0); // true se for LEFT ou RIGHT
 
-	public void resetState() {
-		this.hasAlreadyMoved = false;
-	}
+        while (true) {
+            GameObject objAhead = getTopObjectAt(currentPos);
 
-	private boolean handlePushChain(Vector2D v, Point2D startPos) {
-	    List<GameObject> toPush = new ArrayList<>();
-	    Point2D currentPos = startPos;
+            // Se encontrámos Espaço Vazio (null)
+            if (objAhead == null) {
+                break; // Caminho livre
+            }
 
-	    while (true) {
-	        GameObject objAhead = getTopObjectAt(currentPos);
+            // Se encontrámos uma Parede com Buraco (Transposable)
+            if (objAhead instanceof Transposable && objAhead instanceof Untransposable) {
+        
+                // Temos de ver quem está a tentar entrar no buraco.
+                // Se a lista toPush tiver algo, é esse objeto (ex: Cup).
+                // Se a lista estiver vazia, seria o Peixe (mas esta função só corre se já houver algo).
+                
+                GameObject objectTryingToEnter = toPush.isEmpty() ? this : toPush.get(toPush.size() - 1);
+                
+                // Verifica se o objeto (Cup) consegue passar na parede (Wall)
+                if (((Transposable) objAhead).isTransposableBy(objectTryingToEnter)) {
+                    break; // Consegue passar! O movimento é válido.
+                } else {
+                    return false; // O objeto é demasiado grande para o buraco.
+                }
+            }
 
-	        // Se encontrámos Espaço Vazio (null)
-	        if (objAhead == null) {
-	            break; // Caminho livre
-	        }
+            // Se é uma Parede Sólida normal (não tem buraco)
+            if (objAhead instanceof Untransposable) {
+                return false; // Bloqueado
+            }
 
-	        // Se encontrámos uma Parede com Buraco (Transposable)
-	        if (objAhead instanceof Transposable && objAhead instanceof Untransposable) {
-	    
-	            // Temos de ver quem está a tentar entrar no buraco.
-	            // Se a lista toPush tiver algo, é esse objeto (ex: Cup).
-	            // Se a lista estiver vazia, seria o Peixe (mas esta função só corre se já houver algo).
-	            
-	            GameObject objectTryingToEnter = toPush.isEmpty() ? this : toPush.get(toPush.size() - 1);
-	            
-	            // Verifica se o objeto (Cup) consegue passar na parede (Wall)
-	            if (((Transposable) objAhead).isTransposableBy(objectTryingToEnter)) {
-	                break; // Consegue passar! O movimento é válido.
-	            } else {
-	                return false; // O objeto é demasiado grande para o buraco.
-	            }
-	        }
+            // Se é um objeto de empurrar (Pushable), continuamos a cadeia
+            if (objAhead instanceof Pushable) {
+                toPush.add(objAhead);
 
-	        // Se é uma Parede Sólida normal (não tem buraco)
-	        if (objAhead instanceof Untransposable) {
-	            return false; // Bloqueado
-	        }
+                // Regras do Peixe Grande vs Pequeno
+                if (!(this instanceof Big) && toPush.size() > 1) {
+                    return false; // Peixe pequeno só empurra 1
+                }
+                // Peixe grande pode empurrar múltiplos objetos na vertical, mas só 1 na horizontal
+                if ((this instanceof Big) && isHorizontalMovement && toPush.size() > 1) {
+                    return false; 
+                }
+            } else {
+                // Se for outra coisa qualquer (ex: água não tratada como null), paramos
+                break; 
+            }
 
-	        // Se é um objeto de empurrar (Pushable), continuamos a cadeia
-	        if (objAhead instanceof Pushable) {
-	            toPush.add(objAhead);
+            // Avança para a próxima posição
+            currentPos = currentPos.plus(v);
+        }
 
-	            // Regras do Peixe Grande vs Pequeno
-	            if (!(this instanceof Big) && toPush.size() > 1) {
-	                return false; // Peixe pequeno só empurra 1
-	            }
-	            if ((this instanceof Big) && v.getY() != 0 && toPush.size() > 1) {
-	                return false; // Peixe grande vertical (opcional)
-	            }
-	        } else {
-	            // Se for outra coisa qualquer (ex: água não tratada como null), paramos
-	            break; 
-	        }
+        // Se a lista estiver vazia, não há nada para empurrar
+        if (toPush.isEmpty()) return false;
 
-	        // Avança para a próxima posição
-	        currentPos = currentPos.plus(v);
-	    }
+        // Regra da Âncora: só bloqueia se for movimento HORIZONTAL e já moveu antes
+        for (GameObject obj : toPush) {
+            if (obj instanceof Anchor && isHorizontalMovement && hasAlreadyMovedAnchorHorizontally) {
+                return false;
+            }
+        }
 
-	    // Se a lista estiver vazia, não há nada para empurrar
-	    if (toPush.isEmpty()) return false;
+        // Mover tudo
+        for (int i = toPush.size() - 1; i >= 0; i--) {
+            GameObject obj = toPush.get(i);
+            obj.setPosition(obj.getPosition().plus(v));
+            // Marca que a âncora foi movida HORIZONTALMENTE
+            if (obj instanceof Anchor && isHorizontalMovement) {
+                hasAlreadyMovedAnchorHorizontally = true;
+            }
+        }
 
-	    // Regra da Âncora
-	    for (GameObject obj : toPush) {
-	        if (obj instanceof Anchor && hasAlreadyMoved) {
-	            return false;
-	        }
-	    }
+        return true;
+    }
 
-	    // Mover tudo
-	    for (int i = toPush.size() - 1; i >= 0; i--) {
-	        GameObject obj = toPush.get(i);
-	        obj.setPosition(obj.getPosition().plus(v));
-	        if (obj instanceof Anchor) hasAlreadyMoved = true;
-	    }
-
-	    return true;
-	}
-
-	// Pequeno utilitário para ignorar água ao ver o que está na frente
-	private GameObject getTopObjectAt(Point2D pos) {
-	    for (GameObject obj : getRoom().getObjects()) {
-	        if (obj.getPosition().equals(pos)) {
-	            // Retorna o primeiro objeto sólido ou interativo que encontrar
-	            if (obj instanceof Pushable || obj instanceof Untransposable) {
-	                return obj;
-	            }
-	        }
-	    }
-	    return null; // Retorna null se for só Água ou Vazio
-	}
+    // Pequeno utilitário para ignorar água ao ver o que está na frente
+    private GameObject getTopObjectAt(Point2D pos) {
+        for (GameObject obj : getRoom().getObjects()) {
+            if (obj.getPosition().equals(pos)) {
+                // Retorna o primeiro objeto sólido ou interativo que encontrar
+                if (obj instanceof Pushable || obj instanceof Untransposable) {
+                    return obj;
+                }
+            }
+        }
+        return null; // Retorna null se for só Água ou Vazio
+    }
 
 
     @Override

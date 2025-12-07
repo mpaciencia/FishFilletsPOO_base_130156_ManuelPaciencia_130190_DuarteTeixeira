@@ -15,6 +15,7 @@ public class SmallFish extends GameCharacter implements Small{
 		super(room);
 	}
 
+	// Retorna a única instância do SmallFish (padrão Singleton)
 	public static SmallFish getInstance() {
 		return sf;
 	}

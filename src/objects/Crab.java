@@ -6,8 +6,10 @@ import interfaces.Transposable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
-//Ele comporta-se como um personagem (move-se), 
-//sofre gravidade, é pequeno (passa buracos) e é transponível (para permitir colisão/morte quando os peixes lhe tocam).
+
+// Caranguejo: inimigo móvel que mata os peixes ao tocar.
+// Ele comporta-se como um personagem (move-se), 
+// sofre gravidade, é pequeno (passa buracos) e é transponível (para permitir colisão/morte quando os peixes lhe tocam).
 public class Crab extends GameCharacter implements GravityAffected, Small, Transposable{
     public Crab(Room room) {
         super(room);

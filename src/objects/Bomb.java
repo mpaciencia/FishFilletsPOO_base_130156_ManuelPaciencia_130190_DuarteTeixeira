@@ -33,6 +33,7 @@ public class Bomb extends GameObject implements Pushable, Explosive, GravityAffe
         return 1;
     }
 
+    // Ambos os peixes podem empurrar a bomba (cuidado com explosões!)
     @Override
     public boolean isPushableBy(GameObject gameObject){
         if(gameObject instanceof GameCharacter)

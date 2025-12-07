@@ -7,6 +7,8 @@ import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
+// Armadilha: objeto pesado com gravidade que pode matar os peixes.
+// É transponível (para permitir colisão e detecção de morte).
 public class Trap extends GameObject implements Heavy, GravityAffected, Transposable{
     public Trap(Room room){
         super(room);
@@ -21,6 +23,8 @@ public class Trap extends GameObject implements Heavy, GravityAffected, Transpos
     public int getLayer(){
         return 1;
     }
+    
+    // Permite passagem dos peixes para detetar colisão (morte)
     @Override
     public boolean isTransposableBy(GameObject gameObject) {
         // Deixa passar toda a gente.

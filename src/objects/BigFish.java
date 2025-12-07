@@ -6,6 +6,9 @@ import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
+// Peixe grande: pode empurrar objetos pesados (Stone, Anchor) marcados com interface Big.
+// Singleton para haver apenas uma instância no jogo.
+// Alterna sprite (esquerda/direita) consoante a direção do movimento efetivo.
 public class BigFish extends GameCharacter implements Big{
 
 	private static BigFish bf = new BigFish(null);
@@ -15,6 +18,7 @@ public class BigFish extends GameCharacter implements Big{
 		super(room);
 	}
 
+	// Retorna a única instância do BigFish (padrão Singleton)
 	public static BigFish getInstance() {
 		return bf;
 	}

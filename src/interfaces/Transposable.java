@@ -2,8 +2,8 @@ package interfaces;
 
 import objects.GameObject;
 
-//objetos que podem ser passados
 public interface Transposable {
-    //é passavel por quem?
+    // Indica se um GameObject pode atravessar este objeto (ex.: parede com buraco).
+    // Útil para decidir se o movimento é bloqueado ou permitido.
     boolean isTransposableBy(GameObject gameObject);
 }

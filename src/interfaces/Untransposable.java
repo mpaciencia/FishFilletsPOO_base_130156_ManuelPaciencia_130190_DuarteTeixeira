@@ -1,5 +1,5 @@
 package interfaces;
 
-public interface Untransposable { //Interface para os objetos que nao se pode transpor
-
-}
+// Marca objetos que bloqueiam passagem (paredes, pedras, âncoras...)
+// O GameCharacter usa isto para decidir se o destino está ocupado.
+public interface Untransposable {}

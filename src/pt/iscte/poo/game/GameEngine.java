@@ -61,7 +61,7 @@ public class GameEngine implements Observer {
 				Direction dir = Direction.directionFor(k);
 
 				if (smallSelected) {
-					// Só move SE o peixe ainda estiver na lista de objetos da sala
+					// Só move se o peixe ainda estiver na lista de objetos da sala
 					if (currentRoom.getObjects().contains(SmallFish.getInstance())) {
 						SmallFish.getInstance().move(dir);
 					}
@@ -83,13 +83,13 @@ public class GameEngine implements Observer {
 
 				// Verificar se o destino da troca é válido
 				if (targetSelection) {
-					// Quer mudar para o PEQUENO. Ele está na sala?
+					// Quer mudar para o pequeno. Ele está na sala?
 					if (currentRoom.getObjects().contains(SmallFish.getInstance())) {
 						smallSelected = true;
-						ImageGUI.getInstance().setStatusMessage("Peixe pikeno selecionado");
+						ImageGUI.getInstance().setStatusMessage("Peixe pequeno selecionado");
 					}
 				} else {
-					// Quer mudar para o GRANDE. Ele está na sala?
+					// Quer mudar para o grande. Ele está na sala?
 					if (currentRoom.getObjects().contains(BigFish.getInstance())) {
 						smallSelected = false;
 						ImageGUI.getInstance().setStatusMessage("Peixe grande selecionado");
@@ -117,7 +117,7 @@ public class GameEngine implements Observer {
 				applyGravity((GravityAffected) obj);
 			}
 			if (obj instanceof Floatable) {
-            	applyBuoyancy((Floatable) obj); // Método auxiliar novo
+            	applyBuoyancy((Floatable) obj); // metodo auxiliar para aplicar a flutuabilidade
         	}
 		}
 		checkSmallFishCrush();
@@ -131,7 +131,7 @@ public class GameEngine implements Observer {
 	public void applyGravity(GravityAffected objInterface) {
         GameObject obj = (GameObject) objInterface;
         
-        // Se NÃO tem suporte -> cai
+        // Se nao tem suporte -> cai
         if (!objInterface.isSupported()) {
             Point2D posBelow = obj.getPosition().plus(Direction.DOWN.asVector());
             obj.setPosition(posBelow);
@@ -141,12 +141,12 @@ public class GameEngine implements Observer {
                 ((Bomb) obj).setFalling(true);
             }
         } 
-        // Se TEM suporte (bateu ou está parada)
+        // Se tem suporte (bateu ou está parada)
         else {
             if (obj instanceof Bomb) {
                 Bomb b = (Bomb) obj;
                 
-                // Se estava a cair E agora tem suporte -> boom
+                // Se estava a cair e agora tem suporte -> boom
                 if (b.isFalling()) {
                     
                     // Ver o que está por baixo
@@ -155,7 +155,7 @@ public class GameEngine implements Observer {
                     
                     // Explode se bater num objeto (excluindo peixes)
                     // isSupported já garante que não é Water.
-                    // Só precisamos garantir que não é um GameCharacter (Peixe/Caranguejo)
+                    // Só precisamos garantir que não é um GameCharacter
                     if (!(support instanceof GameCharacter)) {
                         explode(b);
                     } else {
@@ -167,7 +167,7 @@ public class GameEngine implements Observer {
             }
         }
     }
-
+	//metodo auxiliar para aplicar a flutuabilidade
 	public void applyBuoyancy(Floatable objInterface) {
         GameObject obj = (GameObject) objInterface;
         Point2D currentPos = obj.getPosition();
@@ -180,13 +180,13 @@ public class GameEngine implements Observer {
         boolean hasLoad = (objAbove != null && objAbove instanceof GravityAffected);
 
         if (hasLoad) {
-            // --- RAMO 1: TEM CARGA -> TENTA AFUNDAR ---
+            // TEM CARGA -> TENTA AFUNDAR
             GameObject objBelow = currentRoom.getObjectAt(posBelow);
             if (objBelow == null || objBelow instanceof Water) {
                 obj.setPosition(posBelow);
             }
         } else {
-            // --- RAMO 2: NÃO TEM CARGA -> TENTA SUBIR ---
+            // NÃO TEM CARGA -> TENTA SUBIR
             // Só sobe se o espaço acima for realmente água ou vazio (se for um peixe, fica quieta)
             boolean canMoveUp = (objAbove == null || objAbove instanceof Water);
             
@@ -200,14 +200,14 @@ public class GameEngine implements Observer {
         System.out.println("KABOOM!");
         Point2D bombPos = bomb.getPosition();
         
-        // 1. Remover a própria bomba
+        // Remover a própria bomba
         currentRoom.removeObject(bomb);
         
-        // 2. Verificar as 4 direções adjacentes (Cima, Baixo, Esquerda, Direita)
+        // Verificar as 4 direções adjacentes 
         for (Direction dir : Direction.values()) {
             Point2D targetPos = bombPos.plus(dir.asVector());
             
-            // Verificar se atingiu um peixe (Game Over)
+            // Verificar se atingiu um peixe 
             if (SmallFish.getInstance().getPosition().equals(targetPos) || 
                 BigFish.getInstance().getPosition().equals(targetPos)) {
                 ImageGUI.getInstance().showMessage("Game Over", "O peixe explodiu!");
@@ -223,7 +223,8 @@ public class GameEngine implements Observer {
             }
         }
     }
-
+    //metodo auxiliar para verificar se um tronco foi esmagado
+	//se houver um objeto pesado em cima do tronco, ele é removido, independentemente se ele caiu ou já estava lá
 	public void checkTrunkCrush(){
 		for(GameObject obj : new ArrayList<>(currentRoom.getObjects())){
 			if(obj instanceof Trunk){
@@ -237,7 +238,7 @@ public class GameEngine implements Observer {
 			}
 		}
 	}
-
+	//metodo auxiliar para verificar se o peixe pequeno foi esmagado
 	public void checkSmallFishCrush(){
 		Point2D currentPos = SmallFish.getInstance().getPosition();
 		int stackWeight = 0;
@@ -328,13 +329,13 @@ public class GameEngine implements Observer {
 		Point2D bigFishPos = BigFish.getInstance().getPosition();
 		GameObject obj = currentRoom.getObjectAt(bigFishPos);
 		
-		// Se o objeto na posição do peixe for uma Armadilha...
+		// Se o objeto na posição do peixe for uma Armadilha
 		if (obj instanceof Trap) {
 			ImageGUI.getInstance().showMessage("Game Over", "O Peixe Grande caiu na armadilha!");
 			restartGame();
 		}
 	}
-
+	//metodo para reiniciar o nivel
 	public void restartGame(){
 
 		loadGame();
@@ -352,7 +353,7 @@ public class GameEngine implements Observer {
 		
 		updateGUI();
 	}
-
+	//metodo auxiliar para passar de nivel
 	public void nextLevel(){
 		//nivel atual
 		String currentName = currentRoom.getName();
